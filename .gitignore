@@ -2,6 +2,6 @@ config.py
 hostnames.txt
 ips.txt
 ssl_hosts.txt
-__pycache__
+__pycache__/
 hosts_final.txt
 revdns.txt
