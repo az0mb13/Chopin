@@ -15,7 +15,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 #Converting CIDR to IPs and storing in ips.txt
 f = open("ips.txt", "w")
-cidr2ip = subprocess.run(["cidr2ip", "-f", args.file], stdout=f)
+subprocess.run(["cidr2ip", "-f", args.file], stdout=f)
 
 
 #Adding CIDRs and IPs to Shodan Monitor
@@ -43,3 +43,18 @@ with open(args.file) as sh:
     for element in list(set(hostnames)):
         hostfile.write(element + "\n")
     hostfile.close()
+
+#Fetching certs from SSL
+cero = open("ssl_hosts_temp.txt", "w")
+cero_in = open(args.file, "r")
+subprocess.run(["cero"], stdout=cero, stdin=cero_in)
+
+with open("ssl_hosts_temp.txt") as ss:
+    f = open("ssl_hosts.txt", "w")
+    lines= ss.read().splitlines()
+    for e in list(set(lines)):
+        f.write(e + "\n")
+    f.close()
+os.remove("ssl_hosts_temp.txt")
+
+
