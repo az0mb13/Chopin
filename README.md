@@ -1,3 +1,3 @@
 # Chopin
 
-External Pentest Automation using Shodan API and other tools. 
+External Network Pentest Automation using Shodan API and other tools. 
