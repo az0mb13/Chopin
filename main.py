@@ -4,7 +4,7 @@ import argparse
 import subprocess
 import os
 from shodan import Shodan
-from config import shodan_key
+from config import shodan_key,slackid
 import json
 
 parser = argparse.ArgumentParser()
@@ -28,7 +28,7 @@ with open(args.file) as sh:
     #Enabling triggers
     shodan_api.enable_alert_trigger(aid=alert_id, trigger='industrial_control_system,internet_scanner,iot,malware,new_service,open_database,ssl_expired,uncommon,uncommon_plus,vulnerable,vulnerable_unverified')
     #Enabling Slack Webhook for triggers
-    shodan_api.add_alert_notifier(aid=alert_id, nid='yUCrcHttQhRVuexc')
+    shodan_api.add_alert_notifier(aid=alert_id, nid=slackid)
 
     query_string = "net:"+(",".join(lines))
     query_out = shodan_api.search(query=query_string, page=1)
