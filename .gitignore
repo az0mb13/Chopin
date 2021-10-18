@@ -11,3 +11,4 @@ httpx_in.txt
 httpx_out.txt
 masscan_1000.json
 open_ports.txt
+nuclei_out.txt

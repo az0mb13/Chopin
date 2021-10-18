@@ -15,105 +15,107 @@ args = parser.parse_args()
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-#Converting CIDR to IPs and storing in ips.txt
-cidr2ip = open("ips.txt", "w")
-subprocess.run(["cidr2ip", "-f", args.file], stdout=cidr2ip)
-cidr2ip.close()
+# #Converting CIDR to IPs and storing in ips.txt
+# cidr2ip = open("ips.txt", "w")
+# subprocess.run(["cidr2ip", "-f", args.file], stdout=cidr2ip)
+# cidr2ip.close()
 
-#Adding CIDRs and IPs to Shodan Monitor
-shodan_api = Shodan(shodan_key) 
-with open(args.file) as sh:
-    lines = sh.read().splitlines()
-    #Creating alert
-    create_alert = shodan_api.create_alert(name=args.project, ip=lines, expires=0)
-    alert_id = create_alert["id"]
-    #Enabling triggers
-    shodan_api.enable_alert_trigger(aid=alert_id, trigger='industrial_control_system,internet_scanner,iot,malware,new_service,open_database,ssl_expired,uncommon,uncommon_plus,vulnerable,vulnerable_unverified')
-    #Enabling Slack Webhook for triggers
-    shodan_api.add_alert_notifier(aid=alert_id, nid=slackid)
+# #Adding CIDRs and IPs to Shodan Monitor
+# shodan_api = Shodan(shodan_key) 
+# with open(args.file) as sh:
+#     lines = sh.read().splitlines()
+#     #Creating alert
+#     create_alert = shodan_api.create_alert(name=args.project, ip=lines, expires=0)
+#     alert_id = create_alert["id"]
+#     #Enabling triggers
+#     shodan_api.enable_alert_trigger(aid=alert_id, trigger='industrial_control_system,internet_scanner,iot,malware,new_service,open_database,ssl_expired,uncommon,uncommon_plus,vulnerable,vulnerable_unverified')
+#     #Enabling Slack Webhook for triggers
+#     shodan_api.add_alert_notifier(aid=alert_id, nid=slackid)
 
-    query_string = "net:"+(",".join(lines))
-    query_out = shodan_api.search(query=query_string, page=1)
-    hostnames = []
-    for i, j in query_out.items():
-        for k in j:
-            if k["hostnames"]:
-                hostnames.append("".join(k["hostnames"]))
-        break
+#     query_string = "net:"+(",".join(lines))
+#     query_out = shodan_api.search(query=query_string, page=1)
+#     hostnames = []
+#     for i, j in query_out.items():
+#         for k in j:
+#             if k["hostnames"]:
+#                 hostnames.append("".join(k["hostnames"]))
+#         break
 
-    hostfile = open("hostnames.txt", "w")
-    for element in list(set(hostnames)):
-        hostfile.write(element + "\n")
-    hostfile.close()
+#     hostfile = open("hostnames.txt", "w")
+#     for element in list(set(hostnames)):
+#         hostfile.write(element + "\n")
+#     hostfile.close()
 
-# Fetching certs from SSL
-cero = open("ssl_hosts_temp.txt", "w")
-cero_in = open(args.file, "r")
-subprocess.run(["cero"], stdout=cero, stdin=cero_in)
+# # Fetching certs from SSL
+# cero = open("ssl_hosts_temp.txt", "w")
+# cero_in = open(args.file, "r")
+# subprocess.run(["cero"], stdout=cero, stdin=cero_in)
 
-with open("ssl_hosts_temp.txt") as ss:
-    f = open("ssl_hosts.txt", "w")
-    sslines= ss.read().splitlines()
-    for sse in list(set(sslines)):
-        f.write(sse + "\n")
-    f.close()
-os.remove("ssl_hosts_temp.txt")
+# with open("ssl_hosts_temp.txt") as ss:
+#     f = open("ssl_hosts.txt", "w")
+#     sslines= ss.read().splitlines()
+#     for sse in list(set(sslines)):
+#         f.write(sse + "\n")
+#     f.close()
+# os.remove("ssl_hosts_temp.txt")
 
-#Reverse DNS lookup
-hakrev_in = open("ips.txt", "r")
-hakrev_out = open("revdns_temp.txt", "w")
-subprocess.run(["hakrevdns", "-d"], stdout=hakrev_out, stdin=hakrev_in)
+# #Reverse DNS lookup
+# hakrev_in = open("ips.txt", "r")
+# hakrev_out = open("revdns_temp.txt", "w")
+# subprocess.run(["hakrevdns", "-d"], stdout=hakrev_out, stdin=hakrev_in)
 
-with open("revdns_temp.txt") as hr:
-    f = open("revdns.txt", "w")
-    hrlines= hr.read().splitlines()
-    for hre in list(set(hrlines)):
-        if "in-addr.arpa" not in hre:
-            f.write(hre + "\n")
-    f.close()
-os.remove("revdns_temp.txt")
+# with open("revdns_temp.txt") as hr:
+#     f = open("revdns.txt", "w")
+#     hrlines= hr.read().splitlines()
+#     for hre in list(set(hrlines)):
+#         if "in-addr.arpa" not in hre:
+#             f.write(hre + "\n")
+#     f.close()
+# os.remove("revdns_temp.txt")
 
-#Unique all hosts
-h1 = open("ssl_hosts.txt", "r")
-h1Content = h1.read()
-h2 = open("revdns.txt", "r")
-h2Content = h2.read()
-h3 = open("hostnames.txt", "r")
-h3Content = h3.read()
-h1List = h1Content.splitlines()
-h2List = h2Content.splitlines()
-h3List = h3Content.splitlines()
-h1.close()
-h2.close()
-h3.close()
-hosts_final = list(set(h1List+h2List+h3List))
-h_final = open("hosts_final.txt", "w")
-for item in hosts_final: 
-    h_final.write(item + "\n")
-h_final.close()
+# #Unique all hosts
+# h1 = open("ssl_hosts.txt", "r")
+# h1Content = h1.read()
+# h2 = open("revdns.txt", "r")
+# h2Content = h2.read()
+# h3 = open("hostnames.txt", "r")
+# h3Content = h3.read()
+# h1List = h1Content.splitlines()
+# h2List = h2Content.splitlines()
+# h3List = h3Content.splitlines()
+# h1.close()
+# h2.close()
+# h3.close()
+# hosts_final = list(set(h1List+h2List+h3List))
+# h_final = open("hosts_final.txt", "w")
+# for item in hosts_final: 
+#     h_final.write(item + "\n")
+# h_final.close()
 
-#Port scan using masscan
-subprocess.run(["masscan", "-iL", args.file, "-p0-65535", "--rate", "1000", "-oG", "masscan_1000.txt"])
-print("======================== PORT SCAN DONE ========================")
+# #Port scan using masscan
+# subprocess.run(["masscan", "-iL", args.file, "-p0-65535", "--rate", "1000", "-oG", "masscan_1000.txt"])
+# print("======================== PORT SCAN DONE ========================")
 
-# #Parsing masscan output
-with open('masscan_1000.json') as f:
-    jdata = json.load(f)
+# # #Parsing masscan output
+# with open('masscan_1000.json') as f:
+#     jdata = json.load(f)
 
-f = open("open_ports.txt", "w")
-for items in jdata:
-    f.write(str(items["ip"]) + ":" + str(items["ports"][0]["port"]) + "\n")
-f.close()
+# f = open("open_ports.txt", "w")
+# for items in jdata:
+#     f.write(str(items["ip"]) + ":" + str(items["ports"][0]["port"]) + "\n")
+# f.close()
 
-#sending to httpx to filter out hosts with web interfaces
-with open("open_ports.txt") as op:
-    f = open("httpx_in.txt", "w")
-    f.write(op.read())  
-    f.close()
-with open("hosts_final.txt") as hf:
-    f = open("httpx_in.txt", "a")
-    f.write("\n")
-    f.write(hf.read())
-    f.close()
-subprocess.run(["httpx", "-l", "httpx_in.txt", "-o", "httpx_out.txt"])
-subprocess.run(["nuclei", "-t", "~/nuclei-templates/", "-l", "httpx_out.txt"])
+# #sending to httpx to filter out hosts with web interfaces
+# with open("open_ports.txt") as op:
+#     f = open("httpx_in.txt", "w")
+#     f.write(op.read())  
+#     f.close()
+# with open("hosts_final.txt") as hf:
+#     f = open("httpx_in.txt", "a")
+#     f.write("\n")
+#     f.write(hf.read())
+#     f.close()
+# subprocess.run(["httpx", "-l", "httpx_in.txt", "-o", "httpx_out.txt"])
+ntemp = os.path.expanduser('~')+"/nuclei-templates/"
+subprocess.run(["nuclei", "-t", ntemp, "-l", "httpx_out.txt", "-o", "nuclei_out.txt"])
+
