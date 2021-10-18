@@ -5,3 +5,9 @@ ssl_hosts.txt
 __pycache__/
 hosts_final.txt
 revdns.txt
+masscan_1000.txt
+paused.conf
+httpx_in.txt
+httpx_out.txt
+masscan_1000.json
+open_ports.txt

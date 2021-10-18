@@ -7,11 +7,13 @@ from shodan import Shodan
 from config import shodan_key,slackid
 import json
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--file", required=True)
 parser.add_argument("-p", "--project", required=True)
 args = parser.parse_args()
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 #Converting CIDR to IPs and storing in ips.txt
 cidr2ip = open("ips.txt", "w")
@@ -91,3 +93,27 @@ for item in hosts_final:
 h_final.close()
 
 #Port scan using masscan
+subprocess.run(["masscan", "-iL", args.file, "-p0-65535", "--rate", "1000", "-oG", "masscan_1000.txt"])
+print("======================== PORT SCAN DONE ========================")
+
+# #Parsing masscan output
+with open('masscan_1000.json') as f:
+    jdata = json.load(f)
+
+f = open("open_ports.txt", "w")
+for items in jdata:
+    f.write(str(items["ip"]) + ":" + str(items["ports"][0]["port"]) + "\n")
+f.close()
+
+#sending to httpx to filter out hosts with web interfaces
+with open("open_ports.txt") as op:
+    f = open("httpx_in.txt", "w")
+    f.write(op.read())  
+    f.close()
+with open("hosts_final.txt") as hf:
+    f = open("httpx_in.txt", "a")
+    f.write("\n")
+    f.write(hf.read())
+    f.close()
+subprocess.run(["httpx", "-l", "httpx_in.txt", "-o", "httpx_out.txt"])
+subprocess.run(["nuclei", "-t", "~/nuclei-templates/", "-l", "httpx_out.txt"])
